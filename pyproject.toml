@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nav2bc-migration-factory"
+version = "0.1.0"
+description = "Plateforme d'industrialisation des migrations Dynamics NAV vers Business Central"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+nav2bc = "nav2bc.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["nav2bc*"]
+
+[tool.setuptools.package-data]
+"nav2bc.data" = ["*.json"]
+"nav2bc.api" = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
