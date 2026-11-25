@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+/data/
+*.db
+
+# Ne jamais versionner d'exports réels de clients
+exports/
+client-data/
+*.fob
+*.navx
