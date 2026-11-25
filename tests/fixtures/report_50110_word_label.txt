@@ -1,0 +1,58 @@
+OBJECT Report 50110 Etiquette colis
+{
+  OBJECT-PROPERTIES
+  {
+    Date=03.03.20;
+    Time=08:00:00;
+    Modified=Yes;
+    Version List=MED1.00;
+  }
+  PROPERTIES
+  {
+    DefaultLayout=Word;
+  }
+  DATASET
+  {
+    { 1   ;    ;DataItem;Colis               ;
+               DataItemTable=Table50012 }
+
+    { 2   ;1   ;Column  ;Colis_No            ;
+               SourceExpr="No." }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+    }
+  }
+  LABELS
+  {
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+  WORDLAYOUT
+  {
+    UEsDBBQAAAAIAKqBeV3muHRrXgAAAGIAAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbBXMyw2DMAwA
+    0FVQ7sSBQw8VnyVYIIpcQMR2FFsobI/6BnjT2ih3N1Y9hWc3+ODWZdqegto1yqyzO8zKF0DTgRTV
+    S0FulH9SKZp6qTuUmK64I4whfCAJG7L19j8cLC9QSwMEFAAAAAgAqoF5XUtT3rBzAQAA3AMAABEA
+    AAB3b3JkL2RvY3VtZW50LnhtbNVTUWsbMQx+3684/NKnxHeFjWHiK7TdoLCVMjY6KKW4ZyUx2JJn
+    KbkLY/993CUZLfRhYzCYHmTJ1id9/kCLsyHFaguFA6FVzbxWFWBHPuDKqi+f38/eqorFoXeREKza
+    Aauz9tWiN566TQKUakgR2fRWrUWy0Zq7NSTHc8qAQ4pLKskJz6msdE/F50IdMAdcpahP6/qNTi6g
+    ahe9eSS/m3qzl3Z/3JQx8E7cecCRVdWbXGAZho8u54ArtmpPALm2J5uCJoWuENNSZn6HLoWOZ+i2
+    ukCmIqzfSfi2ARF46CgG1q/rpqn1iap6M2Qna6s0cm2u3faWiv80ob6meOOK3DX309vFCHyWPFzT
+    XXM/9mChAlcC6erSqu/1wWYvuIM1P5RuF/rJb9nLBaEATiLk0U330h5njeUygcrk87HBL9w+/U/F
+    vASWgE5cKPDvZH069a8EdjE4rnqzddGqD+GxwO9TERgEqjiC/oCDPuzOGBz3sv0JUEsBAhQDFAAA
+    AAgAqoF5Xea4dGteAAAAYgAAABMAAAAAAAAAAAAAAIABAAAAAFtDb250ZW50X1R5cGVzXS54bWxQ
+    SwECFAMUAAAACACqgXldS1PesHMBAADcAwAAEQAAAAAAAAAAAAAAgAGPAAAAd29yZC9kb2N1bWVu
+    dC54bWxQSwUGAAAAAAIAAgCAAAAAMQIAAAAA
+    END_OF_WORDLAYOUT
+  }
+}

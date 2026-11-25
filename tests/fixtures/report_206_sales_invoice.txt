@@ -1,0 +1,172 @@
+OBJECT Report 206 Sales - Invoice
+{
+  OBJECT-PROPERTIES
+  {
+    Date=15.03.21;
+    Time=10:12:00;
+    Modified=Yes;
+    Version List=NAVW19.00,NAVFR9.00,MED1.00;
+  }
+  PROPERTIES
+  {
+    CaptionML=[ENU=Sales - Invoice;
+               FRA=Ventes : Facture];
+    OnInitReport=BEGIN
+                   GLSetup.GET;
+                   CompanyInfo.GET;
+                 END;
+
+    OnPreReport=BEGIN
+                  CompanyInfo.CALCFIELDS(Picture);
+                END;
+
+  }
+  DATASET
+  {
+    { 5581;    ;DataItem;                    ;
+               DataItemTable=Table112;
+               DataItemTableView=SORTING(No.);
+               ReqFilterFields=No.,Sell-to Customer No.,No. Printed;
+               OnAfterGetRecord=BEGIN
+                                  FormatAddr.SalesInvBillTo(CustAddr,"Sales Invoice Header");
+                                  IF "Tournee No." <> '' THEN
+                                    Tournee.GET("Tournee No.");
+                                END;
+                                 }
+
+    { 3   ;1   ;Column  ;No_SalesInvHeader   ;
+               SourceExpr="No." }
+
+    { 4   ;1   ;Column  ;CompanyPicture      ;
+               SourceExpr=CompanyInfo.Picture }
+
+    { 6   ;1   ;Column  ;TourneeNo           ;
+               SourceExpr="Tournee No." }
+
+    { 7   ;1   ;Column  ;CustAddr1           ;
+               SourceExpr=CustAddr[1] }
+
+    { 1570;1   ;DataItem;                    ;
+               DataItemTable=Table113;
+               DataItemTableView=SORTING(Document No.,Line No.);
+               DataItemLink=Document No.=FIELD(No.);
+               DataItemLinkReference=Sales Invoice Header;
+               OnAfterGetRecord=BEGIN
+                                  TempVATAmountLine.INIT;
+                                  TempVATAmountLine."VAT %" := "VAT %";
+                                  TempVATAmountLine.InsertLine;
+                                END;
+                                 }
+
+    { 10  ;2   ;Column  ;Description_Line    ;
+               IncludeCaption=Yes;
+               SourceExpr=Description }
+
+    { 11  ;2   ;Column  ;Quantity_Line       ;
+               IncludeCaption=Yes;
+               SourceExpr=Quantity }
+
+    { 12  ;2   ;Column  ;Amount_Line         ;
+               SourceExpr=Amount }
+
+    { 13  ;2   ;Column  ;LineDiscount_Line   ;
+               SourceExpr="Line Discount %" }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+      { 1900000001;0;Container;
+                  ContainerType=ContentArea }
+
+      { 2   ;2   ;Field     ;
+                  CaptionML=[ENU=No. of Copies;
+                             FRA=Nombre de copies];
+                  SourceExpr=NoOfCopies }
+
+    }
+  }
+  LABELS
+  {
+    { 1   ;InvoiceLbl          ;CaptionML=[ENU=Invoice;FRA=Facture] }
+    { 2   ;TotalLbl            ;CaptionML=[ENU=Total;FRA=Total] }
+  }
+  CODE
+  {
+    VAR
+      GLSetup@1007 : Record 98;
+      CompanyInfo@1008 : Record 79;
+      Tournee@1009 : Record 50010;
+      TempVATAmountLine@1010 : TEMPORARY Record 290;
+      FormatAddr@1011 : Codeunit 365;
+      CustAddr@1012 : ARRAY [8] OF Text[50];
+      NoOfCopies@1013 : Integer;
+
+    LOCAL PROCEDURE CheckTournee@1();
+    BEGIN
+      { Ajout MED : contrôle de la tournée }
+      IF Tournee."No." = '' THEN
+        EXIT;
+      CODEUNIT.RUN(50005,Tournee);
+    END;
+
+    BEGIN
+    END.
+  }
+  RDLDATA
+  {
+    <?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <DataSources><DataSource Name="DataSource"><ConnectionProperties><DataProvider>SQL</DataProvider><ConnectString /></ConnectionProperties></DataSource></DataSources>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="No_SalesInvHeader"><DataField>No_SalesInvHeader</DataField></Field>
+        <Field Name="CompanyPicture"><DataField>CompanyPicture</DataField></Field>
+        <Field Name="TourneeNo"><DataField>TourneeNo</DataField></Field>
+        <Field Name="CustAddr1"><DataField>CustAddr1</DataField></Field>
+        <Field Name="Description_Line"><DataField>Description_Line</DataField></Field>
+        <Field Name="Description_LineCaption"><DataField>Description_LineCaption</DataField></Field>
+        <Field Name="Quantity_Line"><DataField>Quantity_Line</DataField></Field>
+        <Field Name="Amount_Line"><DataField>Amount_Line</DataField></Field>
+        <Field Name="Amount_LineFormat"><DataField>Amount_LineFormat</DataField></Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <Body>
+    <ReportItems>
+      <Tablix Name="Lines">
+        <TablixRowHierarchy><TablixMembers><TablixMember><Group Name="Details" /></TablixMember></TablixMembers></TablixRowHierarchy>
+        <TablixBody><TablixRows><TablixRow><TablixCells>
+          <TablixCell><CellContents><Textbox Name="Desc"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Description_Line.Value</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></CellContents></TablixCell>
+          <TablixCell><CellContents><Textbox Name="Amt"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Amount_Line.Value</Value><Style><Format>=Fields!Amount_LineFormat.Value</Format></Style></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></CellContents></TablixCell>
+        </TablixCells></TablixRow></TablixRows></TablixBody>
+      </Tablix>
+    </ReportItems>
+  </Body>
+  <Page>
+    <PageHeader>
+      <ReportItems>
+        <Textbox Name="Title"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Parameters!InvoiceLbl.Value</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox>
+        <Textbox Name="Addr"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Code.GetData(1,1)</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox>
+        <Textbox Name="Barcode"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!No_SalesInvHeader.Value</Value><Style><FontFamily>IDAutomationHC39M</FontFamily></Style></TextRun></TextRuns></Paragraph></Paragraphs></Textbox>
+      </ReportItems>
+    </PageHeader>
+    <PageFooter><ReportItems><Textbox Name="Total"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Parameters!TotalLbl.Value</Value><Style><FontFamily>Segoe UI</FontFamily></Style></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></ReportItems></PageFooter>
+  </Page>
+  <Code>Shared Data1 as Object
+Public Function GetData(Num as Integer, Group as integer) as Object
+  Return Cstr(Choose(Num, Split(Cstr(Data1),Chr(177))))
+End Function
+Public Function SetData(NewData as Object, Group as integer)
+  Data1 = NewData
+  Return True
+End Function</Code>
+</Report>
+    END_OF_RDLDATA
+  }
+}

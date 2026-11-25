@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NAV2BC Migration Factory</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo">N2</div><div><div class="bt">NAV2BC</div><div class="bs">Migration Factory</div></div></div>
+    <nav aria-label="Navigation principale" id="nav">
+      <div class="sec">Pilotage</div>
+      <a class="nv" href="#/dashboard" data-v="dashboard"><span class="ic">▦</span>Tableau de bord</a>
+      <a class="nv" href="#/project" data-v="project"><span class="ic">◎</span>Projet &amp; chemin</a>
+      <a class="nv" href="#/environment" data-v="environment"><span class="ic">⚙</span>Environnement</a>
+      <div class="sec">Analyser</div>
+      <a class="nv" href="#/inventory" data-v="inventory"><span class="ic">☰</span>Inventaire</a>
+      <a class="nv" href="#/reports" data-v="reports"><span class="ic">▤</span>Rapports &amp; layouts</a>
+      <a class="nv" href="#/data" data-v="data"><span class="ic">◫</span>Données</a>
+      <div class="sec">Migrer</div>
+      <a class="nv" href="#/execution" data-v="execution"><span class="ic">▶</span>Exécution</a>
+      <a class="nv" href="#/code" data-v="code"><span class="ic">{ }</span>Code AL</a>
+      <a class="nv" href="#/validation" data-v="validation"><span class="ic">✓</span>Validation</a>
+      <div class="sec">Capitaliser</div>
+      <a class="nv" href="#/errors" data-v="errors"><span class="ic">!</span>Journal d'erreurs</a>
+      <a class="nv" href="#/knowledge" data-v="knowledge"><span class="ic">◆</span>Référentiel</a>
+    </nav>
+    <div class="ver" id="ver"></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <label class="psel">Projet
+        <select id="projectSelect" aria-label="Projet ouvert"></select>
+      </label>
+      <span class="pathbadge" id="pathBadge"></span>
+      <span class="spacer"></span>
+      <span class="sys" id="sysBadge"></span>
+      <button class="user" id="userBtn" title="Nom utilisé pour les validations nominatives"></button>
+    </header>
+    <main id="view" class="view" tabindex="-1"></main>
+  </div>
+</div>
+<div id="modal" class="modal" hidden><div class="mbox" role="dialog" aria-modal="true"></div></div>
+<div id="toast" class="toast" hidden></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

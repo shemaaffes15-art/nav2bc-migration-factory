@@ -1,0 +1,104 @@
+{
+  "_comment": "Règles de détection appliquées au code C/AL des rapports. Ce sont des signaux à vérifier, pas des correspondances : chaque règle garde son statut de validation. Ajouter une documentation_url quand une source officielle confirme la règle.",
+  "rules": [
+    {
+      "id": "VAR-FILE",
+      "target": "var_type",
+      "pattern": "^File$",
+      "category": "saas",
+      "severity": "high",
+      "message": "Variable de type File : accès au système de fichiers du serveur, à repenser pour BC Online.",
+      "action": "Remplacer par des flux (InStream/OutStream) et le module de gestion de fichiers.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "VAR-DOTNET",
+      "target": "var_type",
+      "pattern": "^DotNet\\b",
+      "category": "saas",
+      "severity": "high",
+      "message": "Variable DotNet : interop .NET non autorisée dans une extension pour BC Online.",
+      "action": "Rechercher une API AL équivalente ou déporter le traitement (Azure Function, API).",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "VAR-AUTOMATION",
+      "target": "var_type",
+      "pattern": "^Automation\\b",
+      "category": "saas",
+      "severity": "high",
+      "message": "Variable Automation (COM) : non disponible dans Business Central.",
+      "action": "Remplacer par une fonctionnalité standard (export Excel, Word) ou une API.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "CODE-SHELL",
+      "target": "code",
+      "pattern": "\\bSHELL\\s*\\(",
+      "category": "saas",
+      "severity": "high",
+      "message": "Appel SHELL : exécution de programme local, impossible en SaaS.",
+      "action": "Supprimer ou remplacer par un service externe.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "CODE-ENVIRON",
+      "target": "code",
+      "pattern": "\\bENVIRON\\s*\\(",
+      "category": "saas",
+      "severity": "medium",
+      "message": "Lecture de variable d'environnement serveur.",
+      "action": "Remplacer par une valeur de paramétrage.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "CODE-FILE-DIALOG",
+      "target": "code",
+      "pattern": "\\b(UPLOAD|DOWNLOAD|UPLOADINTOSTREAM|DOWNLOADFROMSTREAM)\\s*\\(",
+      "category": "saas",
+      "severity": "medium",
+      "message": "Échange de fichiers avec le client : comportement à revoir côté BC.",
+      "action": "Vérifier l'équivalent AL (UploadIntoStream / DownloadFromStream) et le flux utilisateur.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "CODE-CLIENTTYPE",
+      "target": "code",
+      "pattern": "\\b(ISSERVICETIER|CURRENTCLIENTTYPE)\\b",
+      "category": "obsolete",
+      "severity": "low",
+      "message": "Test du type de client hérité des anciennes versions.",
+      "action": "Simplifier : un seul type de client web en BC.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "CODE-CLASSIC-SHOWOUTPUT",
+      "target": "code",
+      "pattern": "CurrReport\\.SHOWOUTPUT",
+      "category": "classic",
+      "severity": "high",
+      "message": "CurrReport.SHOWOUTPUT : logique liée aux Sections Classic.",
+      "action": "Reconstruire en visibilité conditionnelle dans le layout.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    },
+    {
+      "id": "CODE-CLASSIC-CREATETOTALS",
+      "target": "code",
+      "pattern": "CurrReport\\.CREATETOTALS",
+      "category": "classic",
+      "severity": "medium",
+      "message": "CurrReport.CREATETOTALS : totaux calculés par le moteur Classic.",
+      "action": "Recalculer les totaux dans le layout ou dans le dataset.",
+      "validation_status": "to_validate",
+      "documentation_url": null
+    }
+  ]
+}

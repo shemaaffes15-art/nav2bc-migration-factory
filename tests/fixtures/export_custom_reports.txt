@@ -1,0 +1,233 @@
+OBJECT Table 50010 Tournee
+{
+  OBJECT-PROPERTIES
+  {
+    Date=10.01.20;
+    Time=09:00:00;
+    Modified=Yes;
+    Version List=MED1.00;
+  }
+  PROPERTIES
+  {
+  }
+  FIELDS
+  {
+    { 1   ;   ;No.                 ;Code20         }
+    { 7   ;   ;Vehicule            ;Code10         }
+  }
+  KEYS
+  {
+    {    ;No.                                     ;Clustered=Yes }
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Report 50105 Feuille de tournee
+{
+  OBJECT-PROPERTIES
+  {
+    Date=12.02.20;
+    Time=14:30:00;
+    Modified=Yes;
+    Version List=MED1.00;
+  }
+  PROPERTIES
+  {
+    OnPreReport=VAR
+                  i@1000 : Integer;
+                BEGIN
+                  IF ISSERVICETIER THEN
+                    ExportPath := ENVIRON('TEMP');
+                  TempLine.DELETEALL;
+                END;
+
+  }
+  DATASET
+  {
+    { 1   ;    ;DataItem;Tournee             ;
+               DataItemTable=Table50010;
+               DataItemTableView=SORTING(No.) WHERE(Status=CONST(Released));
+               ReqFilterFields=No.;
+               OnAfterGetRecord=BEGIN
+                                  TempLine.RESET;
+                                  TempLine.DELETEALL;
+                                  BuildLines;
+                                END;
+                                 }
+
+    { 2   ;1   ;Column  ;Tournee_No          ;
+               SourceExpr="No." }
+
+    { 3   ;1   ;Column  ;Tournee_Vehicule    ;
+               SourceExpr=Vehicule }
+
+    { 4   ;1   ;DataItem;LoopLines           ;
+               DataItemTable=Table2000000026;
+               DataItemTableView=SORTING(Number);
+               OnPreDataItem=BEGIN
+                               SETRANGE(Number,1,TempLine.COUNT);
+                             END;
+
+               OnAfterGetRecord=BEGIN
+                                  IF Number = 1 THEN
+                                    TempLine.FINDSET
+                                  ELSE
+                                    TempLine.NEXT;
+                                  MontantLigne := TempLine.Amount;
+                                  IF TempLine."Fixed Fee" THEN
+                                    MontantLigne := MontantLigne + Tournee."Frais fixe";
+                                  TotalMontant := TotalMontant + MontantLigne;
+                                END;
+                                 }
+
+    { 5   ;2   ;Column  ;Line_CustomerNo     ;
+               SourceExpr=TempLine."Customer No." }
+
+    { 6   ;2   ;Column  ;Line_Amount         ;
+               SourceExpr=MontantLigne }
+
+    { 7   ;2   ;Column  ;FraisFixe           ;
+               SourceExpr=Tournee."Frais fixe" }
+
+    { 8   ;2   ;Column  ;Line_Weight         ;
+               SourceExpr=TempLine.Weight }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+    }
+  }
+  LABELS
+  {
+    { 1   ;TitleLbl            ;CaptionML=[ENU=Route sheet;FRA=Feuille de tournee] }
+  }
+  CODE
+  {
+    VAR
+      TempLine@1000 : TEMPORARY Record 50011;
+      MontantLigne@1001 : Decimal;
+      TotalMontant@1002 : Decimal;
+      ExportPath@1003 : Text[250];
+      ExportFile@1004 : File;
+      XmlDoc@1005 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      TourneeMgt@1006 : Codeunit 50005;
+
+    LOCAL PROCEDURE BuildLines@1();
+    VAR
+      SalesLine@1000 : Record 37;
+    BEGIN
+      SalesLine.SETRANGE("Tournee No.",Tournee."No.");
+      IF SalesLine.FINDSET THEN
+        REPEAT
+          TempLine.INIT;
+          TempLine."Customer No." := SalesLine."Sell-to Customer No.";
+          TempLine.Amount := SalesLine.Amount;
+          TempLine.Weight := SalesLine."Net Weight" * SalesLine.Quantity;
+          TempLine.INSERT;
+        UNTIL SalesLine.NEXT = 0;
+    END;
+
+    PROCEDURE ExportXml@2();
+    BEGIN
+      XmlDoc := XmlDoc.XmlDocument;
+      ExportFile.CREATE(ExportPath + '\tournee.xml');
+      ExportFile.CLOSE;
+    END;
+
+    BEGIN
+    END.
+  }
+  RDLDATA
+  {
+    <?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="Tournee_No"><DataField>Tournee_No</DataField></Field>
+        <Field Name="Tournee_Vehicule"><DataField>Tournee_Vehicule</DataField></Field>
+        <Field Name="Line_CustomerNo"><DataField>Line_CustomerNo</DataField></Field>
+        <Field Name="Line_Amount"><DataField>Line_Amount</DataField></Field>
+        <Field Name="Line_AmountFormat"><DataField>Line_AmountFormat</DataField></Field>
+        <Field Name="FraisFixe"><DataField>FraisFixe</DataField></Field>
+        <Field Name="Line_Zone"><DataField>Line_Zone</DataField></Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <Body>
+    <ReportItems>
+      <Tablix Name="Lines">
+        <TablixRowHierarchy><TablixMembers><TablixMember><Group Name="Vehicule"><GroupExpressions><GroupExpression>=Fields!Tournee_Vehicule.Value</GroupExpression></GroupExpressions></Group></TablixMember></TablixMembers></TablixRowHierarchy>
+        <TablixBody><TablixRows><TablixRow><TablixCells>
+          <TablixCell><CellContents><Textbox Name="Cust"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Line_CustomerNo.Value</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></CellContents></TablixCell>
+          <TablixCell><CellContents><Textbox Name="Amt"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Sum(Fields!Line_Amount.Value) + Fields!LineTotal.Value</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></CellContents></TablixCell>
+        </TablixCells></TablixRow></TablixRows></TablixBody>
+      </Tablix>
+    </ReportItems>
+  </Body>
+  <Page>
+    <PageHeader><ReportItems><Textbox Name="T"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Parameters!TitleLbl.Value</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></ReportItems></PageHeader>
+  </Page>
+</Report>
+    END_OF_RDLDATA
+  }
+}
+
+OBJECT Report 111 Customer - Top 10 List
+{
+  OBJECT-PROPERTIES
+  {
+    Date=25.10.16;
+    Time=12:00:00;
+    Version List=NAVW19.00;
+  }
+  PROPERTIES
+  {
+  }
+  DATASET
+  {
+    { 6836;    ;DataItem;                    ;
+               DataItemTable=Table18 }
+
+    { 1   ;1   ;Column  ;Customer_No         ;
+               SourceExpr="No." }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+    }
+  }
+  LABELS
+  {
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+  RDLDATA
+  {
+    <?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <DataSets><DataSet Name="DataSet_Result"><Fields><Field Name="Customer_No"><DataField>Customer_No</DataField></Field></Fields></DataSet></DataSets>
+  <Body><ReportItems><Textbox Name="C"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Customer_No.Value</Value></TextRun></TextRuns></Paragraph></Paragraphs></Textbox></ReportItems></Body>
+</Report>
+    END_OF_RDLDATA
+  }
+}

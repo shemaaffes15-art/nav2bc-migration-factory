@@ -3,28 +3,41 @@
 Plateforme interne qui industrialise les migrations **Microsoft Dynamics NAV → Business Central**
 (on-premises ou Online) et capitalise d'un projet à l'autre.
 
-> Statut : **v0.1 (MVP en cours)** — premier module livré : le moteur de rapports
-> (inventaire, analyse, cohérence dataset ↔ layout, stratégie). Architecture et feuille de route :
-> [`docs/architecture.md`](docs/architecture.md).
+> Statut : **v0.2** — interface complète et moteur de migration (plan d'étapes, scripts PowerShell, exécution nominative, validation)
+> Architecture et feuille de route : [`docs/architecture.md`](docs/architecture.md).
 
-## Ce que fait la v0.1
+## Ce que fait l'application
 
-| Fonction | Détail |
+| Écran | Rôle |
 |---|---|
-| **Analyse des rapports** | Lit un export TXT C/AL (un ou plusieurs objets) : DataItems et hiérarchie, colonnes, triggers, variables, tables temporaires, fonctions, dépendances, request page, labels. |
-| **Layouts** | RDLC (champs du dataset, expressions, `Code.GetData/SetData`, code VB, polices de codes-barres, tablix, groupes), Word (contrôles de contenu liés), Classic NAV 2009 (sections, contrôles). |
-| **Cohérence** | Champs du layout absents du dataset, expressions vers des champs inconnus, colonnes inutilisées, labels manquants. |
-| **Risques** | Fonctions indisponibles en BC Online ou liées au Classic (File, DotNet, Automation, SHELL, SHOWOUTPUT…), règles dans `nav2bc/data/detection_rules.json`. |
-| **Complexité** | Score justifié facteur par facteur → Simple / Moyen / Complexe / Très complexe. |
-| **Stratégie proposée** | Standard BC (rien à migrer), report extension sur le standard BC, conversion Txt2AL, remappage Word, squelette RDLC pour le Classic. Toujours une *proposition* à valider. |
-| **Chemin de mise à niveau** | Sauts de version obligatoires/recommandés avec leur source Microsoft (ex. NAV 2016 → BC 14 → BC 25 → BC 29 → migration cloud). |
-| **Référentiel (Learn)** | Fiches de changement versionnées (preuve, portée, validation nominative) et signatures d'erreur avec solution connue et confiance. |
+| Tableau de bord | Projets, avancement, prochaine étape, erreurs déjà résolues. |
+| Projet & chemin | Version source et cible, chemin de mise à niveau obligatoire (NAV → BC 14 → BC 25 → BC 29 → BC Online), chaque saut avec sa source Microsoft. |
+| Environnement | Serveur SQL, bases, finsql, outils d'administration BC 14 / 25 / cible, txt2al, alc, DVD, licences, projet AL. |
+| Inventaire | Import de l'export TXT de tous les objets : objets par type et origine, tables client, champs ajoutés aux tables standard, fonctions bloquantes pour BC Online. |
+| Rapports & layouts | Analyse de chaque rapport (dataset, RDLC, Word, Classic), contrôles de cohérence, score de complexité justifié, stratégie proposée. |
+| Données | Couverture des tables et champs client par l'extension AL (sans elle, la migration cloud ne reprend pas ces données). |
+| Exécution | Le plan complet, étape par étape (43 étapes pour NAV 2016 → BC Online 29) : scripts PowerShell générés, modifiables ou remplacés par vos propres scripts, exécution nominative avec journal en direct, confirmation obligatoire pour toute étape qui modifie une base ou un service, étapes manuelles avec liste de contrôle signée. |
+| Code AL | Export au nouveau format, Txt2AL, projet AL, compilation alc, erreurs AL capitalisées. |
+| Validation | Comptage des enregistrements source / cible et comparaison table par table, recette des rapports. |
+| Journal d'erreurs | Chaque erreur d'exécution devient une signature ; quand elle revient, la solution documentée s'affiche avec sa confiance. |
+| Référentiel | Fiches de changement versionnées (preuve, portée, validation nominative). |
 
-Principe de base : **une hypothèse n'est jamais appliquée automatiquement**. Seule une entrée validée
-nominativement et prouvée (documentation Microsoft, identité d'ID ou validation consultante) est
-marquée `auto_applicable`.
+**Principe** : rien de destructif sans validation nominative ; les scripts générés suivent la documentation Microsoft et doivent être relus ; une hypothèse n'est jamais appliquée automatiquement.
 
-## Démarrer
+## Démarrer sur la machine de migration (Windows)
+
+L'application exécute les étapes PowerShell **sur la machine où elle tourne**. Installez-la sur le serveur Windows qui a SQL Server, le Development Environment NAV, les versions BC 14 / 25 / cible et l'extension AL de VS Code.
+
+1. Installer Python 3.11+ (cocher « Add python.exe to PATH »).
+2. Double-cliquer sur `demarrer.bat` : il crée l'environnement, installe l'application, lance le serveur et ouvre http://127.0.0.1:8000.
+3. Créer le projet, renseigner l'écran **Environnement**, puis suivre l'écran **Exécution** dans l'ordre.
+
+Vos propres scripts PowerShell remplacent les scripts générés : déposez-les dans `<dossier de travail>\scripts\<id de l'étape>.ps1` (l'id est affiché sur chaque étape), ou collez-les dans l'éditeur de l'étape.
+
+Sur une machine sans PowerShell (Linux, macOS), les étapes sont simulées : le script est généré et journalisé, rien n'est exécuté.
+
+## Démarrage manuel (développeurs)
+
 
 Prérequis : Python 3.11+.
 
@@ -58,7 +71,12 @@ nav2bc/
   reports/word.py        analyse des layouts Word
   knowledge/store.py     projets, analyses, référentiel des changements, erreurs (SQLite)
   knowledge/signature.py normalisation des messages d'erreur
-  upgrade_path.py        calcul du chemin de mise à niveau
+  upgrade_path.py           calcul du chemin de mise à niveau
+  migration/plan.py         plan d'étapes et scripts PowerShell par saut de version
+  migration/runner.py       exécution (ou simulation), journal, erreurs capitalisées
+  migration/environment.py  paramètres de l'environnement de migration
+  inventory.py              inventaire complet de l'export TXT
+  al_scan.py                lecture du projet AL, couverture des données, comparaison des volumes
   api/app.py             API REST (FastAPI) + interface web (api/static)
   cli.py                 ligne de commande
 tests/                   tests + fixtures synthétiques (aucune donnée client réelle)

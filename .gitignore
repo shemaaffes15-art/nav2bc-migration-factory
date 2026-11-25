@@ -14,3 +14,6 @@ exports/
 client-data/
 *.fob
 *.navx
+
+# Archives
+*.zip

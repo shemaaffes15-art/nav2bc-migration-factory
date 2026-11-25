@@ -1,0 +1,108 @@
+OBJECT Report 50120 Releve client
+{
+  OBJECT-PROPERTIES
+  {
+    Date=05.06.10;
+    Time=11:00:00;
+    Modified=Yes;
+    Version List=ATL1.00;
+  }
+  PROPERTIES
+  {
+    OrderBy=No.;
+  }
+  DATAITEMS
+  {
+    { PROPERTIES
+      {
+        DataItemTable=Table18;
+        DataItemTableView=SORTING(No.);
+        OnAfterGetRecord=BEGIN
+                           CurrReport.CREATETOTALS(Balance);
+                         END;
+
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Header;
+            SectionWidth=12000;
+            SectionHeight=846;
+          }
+          CONTROLS
+          {
+            { 1   ;Label        ;0    ;0    ;4950 ;423  ;FontBold=Yes;
+                                                          CaptionML=ENU=Customer Statement }
+            { 2   ;TextBox      ;6000 ;0    ;3000 ;423  ;SourceExpr=TODAY }
+          }
+           }
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=423;
+            OnPreSection=BEGIN
+                           CurrReport.SHOWOUTPUT(Balance <> 0);
+                         END;
+
+          }
+          CONTROLS
+          {
+            { 3   ;TextBox      ;0    ;0    ;1500 ;423  ;SourceExpr="No." }
+            { 4   ;TextBox      ;1650 ;0    ;4500 ;423  ;SourceExpr=Name }
+            { 5   ;TextBox      ;6300 ;0    ;1800 ;423  ;SourceExpr=Balance }
+          }
+           }
+        { PROPERTIES
+          {
+            SectionType=Footer;
+            SectionWidth=12000;
+            SectionHeight=423;
+          }
+          CONTROLS
+          {
+            { 6   ;TextBox      ;6300 ;0    ;1800 ;423  ;SourceExpr=Balance }
+          }
+           }
+      }
+       }
+    { PROPERTIES
+      {
+        DataItemTable=Table21;
+        DataItemLink=Customer No.=FIELD(No.);
+      }
+      SECTIONS
+      {
+        { PROPERTIES
+          {
+            SectionType=Body;
+            SectionWidth=12000;
+            SectionHeight=423;
+          }
+          CONTROLS
+          {
+            { 7   ;TextBox      ;0    ;0    ;1800 ;423  ;SourceExpr="Posting Date" }
+          }
+           }
+      }
+       }
+  }
+  REQUESTFORM
+  {
+    PROPERTIES
+    {
+      Width=9020;
+      Height=3410;
+    }
+    CONTROLS
+    {
+    }
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
